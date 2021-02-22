@@ -1,0 +1,42 @@
+{
+    "name": "url-builder-ts",
+    "version": "1.0.0",
+    "description": "URL builder",
+    "author": "o-su",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/o-su/url-builder-ts.git"
+    },
+    "bugs": {
+        "url": "https://github.com/o-su/url-builder-ts/issues"
+    },
+    "homepage": "https://github.com/o-su/url-builder-ts",
+    "keywords": [
+        "URL",
+        "URL builder",
+        "RFC 3986"
+    ],
+    "files": [
+        "dist"
+    ],
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "test": "jest --config jestconfig.json"
+    },
+    "devDependencies": {
+        "typescript": "*",
+        "@types/jest": "*",
+        "jest": "*",
+        "ts-jest": "*",
+        "prettier": "*"
+    },
+    "prettier": {
+        "useTabs": false,
+        "tabWidth": 4,
+        "printWidth": 100,
+        "singleQuote": false
+    }
+}

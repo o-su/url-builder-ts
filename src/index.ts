@@ -1,60 +1,64 @@
 export class UrlBuilder {
-    private scheme: string;
-    private userInfo: string | undefined;
-    private host: string | undefined;
-    private port: number | undefined;
-    private paths: string[] = [];
-    private parameters: string[] = [];
-    private fragment: string | undefined;
+    private settings: BuilderSettings;
 
     constructor(scheme: string) {
-        this.scheme = scheme;
+        this.settings = { scheme, paths: [], parameters: [] };
     }
 
     setScheme = (scheme: string): this => {
-        this.scheme = scheme;
+        this.settings.scheme = scheme;
 
         return this;
     };
 
     setUserInfo = (userName: string, password?: string): this => {
-        if (password) {
-            this.userInfo = `${userName}:${password}`;
-        } else {
-            this.userInfo = userName;
-        }
+        this.settings.userInfo = { userName, password };
 
         return this;
     };
 
     setHost = (host: string): this => {
-        this.host = host;
+        this.settings.host = host;
 
         return this;
     };
 
     setPort = (port: number): this => {
-        this.port = port;
+        this.settings.port = port;
 
         return this;
     };
 
     addPath = (path: string): this => {
-        this.paths.push(path);
+        this.settings.paths.push(path);
 
         return this;
     };
 
-    addParameter = (parameter: string, value: string): this => {
-        this.parameters.push(`${encodeURIComponent(parameter)}=${encodeURIComponent(value)}`);
+    addParameter = (name: string, value: string): this => {
+        this.settings.parameters.push({ name, value });
 
         return this;
     };
 
     setFragment = (fragment: string): this => {
-        this.fragment = fragment;
+        this.settings.fragment = fragment;
 
         return this;
+    };
+
+    clone = (): UrlBuilder => {
+        const builder = new UrlBuilder(this.settings.scheme);
+
+        builder.setSettings(this.getSettings());
+
+        return builder;
+    };
+
+    getSettings = (): BuilderSettings => JSON.parse(JSON.stringify(this.settings));
+
+    setSettings = (settings: BuilderSettings): void => {
+        this.settings = settings;
     };
 
     build = (): string => {
@@ -69,8 +73,8 @@ export class UrlBuilder {
     };
 
     private buildScheme = (): string => {
-        if (this.scheme) {
-            return `${this.scheme}:`;
+        if (this.settings.scheme) {
+            return `${this.settings.scheme}:`;
         } else {
             throw new Error("URL scheme is not defined.");
         }
@@ -79,18 +83,32 @@ export class UrlBuilder {
     private buildAuthority = (): string => {
         let url: string = "";
 
-        if (this.host) {
+        if (this.settings.host) {
             url += "//";
+            url += this.buildUserInfo();
+            url += this.settings.host;
 
-            if (this.userInfo) {
-                url += `${this.userInfo}@`;
+            if (this.settings.port) {
+                url += `:${this.settings.port}`;
+            }
+        }
+
+        return url;
+    };
+
+    private buildUserInfo = (): string => {
+        let url: string = "";
+
+        if (this.settings.userInfo) {
+            const userInfo: UserInfo = this.settings.userInfo;
+
+            if (userInfo.password) {
+                url += `${userInfo.userName}:${userInfo.password}`;
+            } else {
+                url += userInfo.userName;
             }
 
-            url += this.host;
-
-            if (this.port) {
-                url += `:${this.port}`;
-            }
+            url += "@";
         }
 
         return url;
@@ -99,12 +117,12 @@ export class UrlBuilder {
     private buildPath = (): string => {
         let url: string = "";
 
-        if (this.paths.length > 0) {
-            if (this.host) {
+        if (this.settings.paths.length > 0) {
+            if (this.settings.host) {
                 url += "/";
             }
 
-            url += this.paths.join("/");
+            url += this.settings.paths.join("/");
         }
 
         return url;
@@ -113,20 +131,47 @@ export class UrlBuilder {
     private buildParameters = (): string => {
         let url: string = "";
 
-        if (this.parameters.length > 0) {
-            url += "?" + this.parameters.join("&");
+        if (this.settings.parameters.length > 0) {
+            url += "?" + this.stringifyUrlParameters(this.settings.parameters).join("&");
         }
 
         return url;
+    };
+
+    private stringifyUrlParameters = (parameters: UrlParameter[]): string[] => {
+        return parameters.map(
+            (parameter) =>
+                `${encodeURIComponent(parameter.name)}=${encodeURIComponent(parameter.value)}`
+        );
     };
 
     private buildFragment = (): string => {
         let url: string = "";
 
-        if (this.fragment) {
-            url += `#${this.fragment}`;
+        if (this.settings.fragment) {
+            url += `#${this.settings.fragment}`;
         }
 
         return url;
     };
 }
+
+export type BuilderSettings = {
+    scheme: string;
+    userInfo?: UserInfo;
+    host?: string;
+    port?: number;
+    paths: string[];
+    parameters: UrlParameter[];
+    fragment?: string;
+};
+
+export type UserInfo = {
+    userName: string;
+    password?: string;
+};
+
+export type UrlParameter = {
+    name: string;
+    value: string;
+};

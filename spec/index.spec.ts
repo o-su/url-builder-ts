@@ -32,4 +32,18 @@ describe("unit tests", () => {
             "https://admin:pass@localhost:8080/dir/subdir?param=value&param2=value2#fragment"
         );
     });
+
+    test("clone returns deep copy", () => {
+        // given
+        const urlBuilder = new UrlBuilder("https")
+            .setUserInfo("admin", "pass")
+            .setHost("localhost");
+
+        // when
+        const result = urlBuilder.clone().setPort(8080);
+
+        // then
+        expect(urlBuilder.build()).toEqual("https://admin:pass@localhost");
+        expect(result.build()).toEqual("https://admin:pass@localhost:8080");
+    });
 });

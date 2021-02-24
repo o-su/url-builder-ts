@@ -13,5 +13,14 @@ npm install --save url-builder-ts
 ```typescript
 import { UrlBuilder } from "url-builder-ts";
 
-const url = new UrlBuilder("https").setHost("localhost").setPort(8080).build();
+const url = new UrlBuilder("https")
+            .setUserInfo("admin", "pass")
+            .setHost("localhost")
+            .setPort(8080)
+            .addPath("dir")
+            .addPath("subdir")
+            .addParameter("param", "value")
+            .addParameter("param2", "value2")
+            .setFragment("fragment");
+            .build();
 ```

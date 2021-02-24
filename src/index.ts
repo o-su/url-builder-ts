@@ -72,13 +72,7 @@ export class UrlBuilder {
         return url;
     };
 
-    private buildScheme = (): string => {
-        if (this.settings.scheme) {
-            return `${this.settings.scheme}:`;
-        } else {
-            throw new Error("URL scheme is not defined.");
-        }
-    };
+    private buildScheme = (): string => `${this.settings.scheme}:`;
 
     private buildAuthority = (): string => {
         let url: string = "";

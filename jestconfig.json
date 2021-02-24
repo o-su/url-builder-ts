@@ -3,5 +3,6 @@
         "^.+\\.(t|j)sx?$": "ts-jest"
     },
     "testRegex": "(/spec/.*|(\\.|/)(test|spec))$",
+    "collectCoverage": true,
     "moduleFileExtensions": ["ts", "js"]
 }
